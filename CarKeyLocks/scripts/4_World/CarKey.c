@@ -1,0 +1,3 @@
+class CarKey extends ItemBase {
+	
+}
