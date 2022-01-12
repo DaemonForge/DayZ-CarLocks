@@ -1,5 +1,0 @@
-class CarLockKit extends ItemBase {
-	
-	
-	
-}
