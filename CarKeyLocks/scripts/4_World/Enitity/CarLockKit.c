@@ -7,15 +7,14 @@ class CarLockKit extends ItemBase {
 	}
 	
 	bool CanAssignKey(){
-		return ((GetKey() && !GetKey().IsRuined()) && GetQuantity() >= 1);
+		return ((GetKey() && !GetKey().IsRuined()) && !IsRuined() && GetQuantity() >= 1);
 	}
 	
 	CarKey GetKey() {
 		return CarKey.Cast(FindAttachmentBySlotName("Att_CarKey"));
 	}
 	
-	override void SetActions()
-	{
+	override void SetActions() {
 		super.SetActions();
 		AddAction(ActionInstallCarLock);
 	}

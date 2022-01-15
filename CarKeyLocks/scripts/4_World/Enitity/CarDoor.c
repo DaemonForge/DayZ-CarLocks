@@ -20,13 +20,23 @@ modded class CarDoor extends InventoryItemSuper
 	
 	bool CanHaveKeyAssigned(){
 		CarScript car;
-		return ( !HasKeyAssigned() && !IsRuined() && (!Class.CastTo(car, GetParent()) || car.CrewSize() < 1));
+		bool HasPeopleInCar = false;
+		if (Class.CastTo(car, GetHierarchyParent())){
+			for ( int i = 0; i < car.CrewSize(); i++ )
+         	{
+                Human crew = car.CrewMember( i );
+                if ( crew ){
+					HasPeopleInCar = true;
+					break;
+				}
+			}
+		}
+		return (!HasKeyAssigned() && !IsRuined() && !HasPeopleInCar);
 	}
 	
 	bool IsDoorLocked(){
 		return (m_CarDoorIsLocked && IsAttachedToCar() && HasKeyAssigned() && !IsRuined());
 	}
-	
 	
 	bool IsKeyValid(CarKey key){
 		if (!HasKeyAssigned()){return true;}
@@ -38,11 +48,12 @@ modded class CarDoor extends InventoryItemSuper
 	
 	bool IsAttachedToCar(){
 		CarScript car;
-		return Class.CastTo(car, GetParent());
+		return Class.CastTo(car, GetHierarchyParent());
 	}
 	
 	void SetDoorLocked(bool state){
 		m_CarDoorIsLocked = state;
+		SetSynchDirty();
 	}
 	
 	override bool CanDetachAttachment(EntityAI parent)
@@ -61,7 +72,7 @@ modded class CarDoor extends InventoryItemSuper
 			rValue = true;
 		}
         if (GetGame().IsClient() && HasKeyAssigned() ) {
-            output = name + ", Seems to have a lock installed";
+            output = name + " Seems to have a lock installed. (Lock S/N: " + Math.AbsInt(m_Key_rng) + " - " + Math.AbsInt(m_Key_b1) + ")";
             return true;
         }
         return rValue;
@@ -80,31 +91,76 @@ modded class CarDoor extends InventoryItemSuper
 	override bool OnStoreLoad(ParamsReadContext ctx, int version)
 	{
 		if ( !super.OnStoreLoad( ctx, version ) ) {
-			return false;
-		}
-		if (!ctx.Read( m_Key_b1 )) {
 			m_Key_b1 = 0;
 			m_Key_b2 = 0;
 			m_Key_b3 = 0;
 			m_Key_b4 = 0;
 			m_Key_rng = 0;
 			m_CarDoorIsLocked = false;
+			Print("Data Corrupted Reseting Car Door back to 0 " + GetPosition());
 			return false;
 		}
-		if (!ctx.Read( m_Key_b2 )) {
-			return false;
-		}
-		if (!ctx.Read( m_Key_b3 )) {
-			return false;
-		}
-		if (!ctx.Read( m_Key_b4 )) {
-			return false;
-		}
-		if (!ctx.Read( m_Key_rng )) {
-			return false;
-		}
-		if (!ctx.Read( m_CarDoorIsLocked )) {
-			return false;
+		if (GetCarKeyLockConfig().IsInstalled()){
+			if (!ctx.Read( m_Key_b1 )) {
+				m_Key_b1 = 0;
+				m_Key_b2 = 0;
+				m_Key_b3 = 0;
+				m_Key_b4 = 0;
+				m_Key_rng = 0;
+				m_CarDoorIsLocked = false;
+				Print("Data Corrupted Reseting Car Door back to 0 " + GetPosition());
+				return false;
+			}
+			if (!ctx.Read( m_Key_b2 )) {
+				m_Key_b1 = 0;
+				m_Key_b2 = 0;
+				m_Key_b3 = 0;
+				m_Key_b4 = 0;
+				m_Key_rng = 0;
+				m_CarDoorIsLocked = false;
+				Print("Data Corrupted Reseting Car Door back to 0 " + GetPosition());
+				return false;
+			}
+			if (!ctx.Read( m_Key_b3 )) {
+				m_Key_b1 = 0;
+				m_Key_b2 = 0;
+				m_Key_b3 = 0;
+				m_Key_b4 = 0;
+				m_Key_rng = 0;
+				m_CarDoorIsLocked = false;
+				Print("Data Corrupted Reseting Car Door back to 0 " + GetPosition());
+				return false;
+			}
+			if (!ctx.Read( m_Key_b4 )) {
+				m_Key_b1 = 0;
+				m_Key_b2 = 0;
+				m_Key_b3 = 0;
+				m_Key_b4 = 0;
+				m_Key_rng = 0;
+				m_CarDoorIsLocked = false;
+				Print("Data Corrupted Reseting Car Door back to 0 " + GetPosition());
+				return false;
+			}
+			if (!ctx.Read( m_Key_rng )) {
+				m_Key_b1 = 0;
+				m_Key_b2 = 0;
+				m_Key_b3 = 0;
+				m_Key_b4 = 0;
+				m_Key_rng = 0;
+				m_CarDoorIsLocked = false;
+				Print("Data Corrupted Reseting Car Door back to 0 " + GetPosition());
+				return false;
+			}
+			if (!ctx.Read( m_CarDoorIsLocked )) {
+				m_Key_b1 = 0;
+				m_Key_b2 = 0;
+				m_Key_b3 = 0;
+				m_Key_b4 = 0;
+				m_Key_rng = 0;
+				m_CarDoorIsLocked = false;
+				Print("Data Corrupted Reseting Car Door back to 0 " + GetPosition());
+				return false;
+			}
 		}
 		return true;
 	}
@@ -118,12 +174,33 @@ modded class CarDoor extends InventoryItemSuper
 		ctx.Write( m_Key_b4 );
 		ctx.Write( m_Key_rng );
 		ctx.Write( m_CarDoorIsLocked );
+		GetCarKeyLockConfig().SetIsInstalled();
 	}
 	
 	
 	override void AfterStoreLoad()
 	{	
 		super.AfterStoreLoad();
+		int count = 0;
+		if (m_Key_b1 == 0 || m_Key_b1 == 12 || m_Key_b1 == -1 || m_Key_b1 == -1082130432|| m_Key_b1 == 2) count++;
+		if (m_Key_b2 == 0 || m_Key_b2 ==  1065353216 || m_Key_b2 == -1 || m_Key_b2 == -1082130432 || m_Key_b2 == 2) count++;
+		if (m_Key_b3 == 0 || m_Key_b3 ==  1065353216 || m_Key_b3 == -1 || m_Key_b3 == -1082130432 || m_Key_b3 == 2) count++;
+		if (m_Key_b4 == 0 || m_Key_b4 ==  1065353216 || m_Key_b4 == -1 || m_Key_b4 == -1082130432 || m_Key_b4 == 2) count++;
+		if (m_Key_rng == 0 || m_Key_rng ==  1065353216 || m_Key_rng == -1 || m_Key_rng == 2) count++;
+		
+		if (!HasKeyAssigned() && m_CarDoorIsLocked){
+			m_CarDoorIsLocked = false;
+		}
+		
+		if (count > 2 && !HasKeyAssigned()){
+			Print("Data Corrupted Reseting Door back "  + m_Key_b1 + " " + m_Key_b2 + " " + m_Key_b3 + " " + m_Key_b4 + " " + m_Key_rng + " @ " + GetPosition());
+			m_Key_b1 = 0;
+			m_Key_b2 = 0;
+			m_Key_b3 = 0;
+			m_Key_b4 = 0;
+			m_Key_rng = 0;
+			m_CarDoorIsLocked = false;
+		}
 		SetSynchDirty();
 	}
 	
@@ -134,6 +211,24 @@ modded class CarDoor extends InventoryItemSuper
 		SetSynchDirty();
 	}
 	
+	override void EEHitBy(TotalDamageResult damageResult, int damageType, EntityAI source, int component, string dmgZone, string ammo, vector modelPos, float speedCoef)
+	{		
+		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
+		if (!GetGame().IsClient()){
+			array<string> FullZonesList = new array<string>;
+			GetDamageZones(FullZonesList);
+			for (int i = 0; i < FullZonesList.Count(); i++){
+				float zoneDmg = damageResult.GetDamage(FullZonesList.Get(i), "Health");
+				string zoneName = FullZonesList.Get(i);
+				if (zoneDmg > 0){
+					AddHealth(zoneName, "Health", (zoneDmg * 0.3));
+				}
+			}
+			float dmg = damageResult.GetDamage("","Health");
+			AddHealth("", "Health", (dmg * 0.3));
+		}
+		
+	}
 	
 	override void OnUApiSave(UApiEntityStore data) {
 		super.OnUApiSave(data);

@@ -7,7 +7,7 @@ class CarKey extends ItemBase {
 	protected int m_Master_Key_rng = 0;
 	
 	void CarKey(){
-		RegisterNetSyncVariableBool("m_IsAssigned");
+		RegisterNetSyncVariableBool("m_IsMasterKey");
 		RegisterNetSyncVariableInt("m_Master_Key_b1");
 		RegisterNetSyncVariableInt("m_Master_Key_b2");
 		RegisterNetSyncVariableInt("m_Master_Key_b3");
@@ -15,7 +15,7 @@ class CarKey extends ItemBase {
 		RegisterNetSyncVariableInt("m_Master_Key_rng");
 	}
 	
-	bool IsMaster(){
+	bool IsMasterKey(){
 		return (HasBeenAssigned() && m_IsMasterKey);
 	}
 	
@@ -26,17 +26,47 @@ class CarKey extends ItemBase {
 			name = output;
 			rValue = true;
 		}
-        if (GetGame().IsClient() && IsMaster() ) {
+        if (GetGame().IsClient() && IsMasterKey() ) {
             output = name + " (Master)";
             return true;
-        }
-        if (GetGame().IsClient() && !HasBeenAssigned() ) {
+        } else if (GetGame().IsClient() && !HasBeenAssigned() ) {
             output = name + " (Blank)";
+            return true;
+        } else if (GetGame().IsClient() && HasBeenAssigned() ) {
+            output = name + " (Duplicate)";
             return true;
         }
         return rValue;
     }
 	
+	override bool DescriptionOverride(out string output) {
+		string name = ConfigGetString("descriptionShort");
+		bool rValue = false;
+		if (super.NameOverride(output)){
+			name = output;
+			rValue = true;
+		}
+        if (GetGame().IsClient() && HasBeenAssigned() ) {
+            output = name + "(Key S/N: " + Math.AbsInt(m_Master_Key_rng) + " - " + Math.AbsInt(m_Master_Key_b3) + ")";
+            return true;
+        }
+        return rValue;
+    }
+	
+	static void DuplicateKey(CarKey from, CarKey to){
+		int b1, b2, b3, b4, rng;
+		from.GetCarKeyId(b1, b2, b3, b4, rng);
+		to.SetCarKeyId(b1, b2, b3, b4, rng);
+	}
+	
+	void SetCarKeyId(int b1, int b2, int b3, int b4, int rng){
+		m_Master_Key_b1 = b1;
+		m_Master_Key_b2 = b2;
+		m_Master_Key_b3 = b3;
+		m_Master_Key_b4 = b4;
+		m_Master_Key_rng = rng;
+		SetSynchDirty();
+	}
 	
 	void GetCarKeyId(out int b1, out int b2, out int b3, out int b4, out int rng){
 		if (!HasBeenAssigned()){
@@ -67,24 +97,73 @@ class CarKey extends ItemBase {
 	override bool OnStoreLoad(ParamsReadContext ctx, int version)
 	{
 		if ( !super.OnStoreLoad( ctx, version ) ) {
+			m_IsMasterKey = false;
+			m_Master_Key_b1 = 0;
+			m_Master_Key_b2 = 0;
+			m_Master_Key_b3 = 0;
+			m_Master_Key_b4 = 0;
+			m_Master_Key_rng = 0;
+			Print("Data Corrupted Reseting Key back to 0 " + GetPosition());
 			return false;
 		}
 		if (!ctx.Read( m_IsMasterKey )) {
+			m_IsMasterKey = false;
+			m_Master_Key_b1 = 0;
+			m_Master_Key_b2 = 0;
+			m_Master_Key_b3 = 0;
+			m_Master_Key_b4 = 0;
+			m_Master_Key_rng = 0;
+			Print("Data Corrupted Reseting Key back to 0 " + GetPosition());
 			return false;
 		}
 		if (!ctx.Read( m_Master_Key_b1 )) {
+			m_IsMasterKey = false;
+			m_Master_Key_b1 = 0;
+			m_Master_Key_b2 = 0;
+			m_Master_Key_b3 = 0;
+			m_Master_Key_b4 = 0;
+			m_Master_Key_rng = 0;
+			Print("Data Corrupted Reseting Key back to 0 " + GetPosition());
 			return false;
 		}
 		if (!ctx.Read( m_Master_Key_b2 )) {
+			m_IsMasterKey = false;
+			m_Master_Key_b1 = 0;
+			m_Master_Key_b2 = 0;
+			m_Master_Key_b3 = 0;
+			m_Master_Key_b4 = 0;
+			m_Master_Key_rng = 0;
+			Print("Data Corrupted Reseting Key back to 0 " + GetPosition());
 			return false;
 		}
 		if (!ctx.Read( m_Master_Key_b3 )) {
+			m_IsMasterKey = false;
+			m_Master_Key_b1 = 0;
+			m_Master_Key_b2 = 0;
+			m_Master_Key_b3 = 0;
+			m_Master_Key_b4 = 0;
+			m_Master_Key_rng = 0;
+			Print("Data Corrupted Reseting Key back to 0 " + GetPosition());
 			return false;
 		}
 		if (!ctx.Read( m_Master_Key_b4 )) {
+			m_IsMasterKey = false;
+			m_Master_Key_b1 = 0;
+			m_Master_Key_b2 = 0;
+			m_Master_Key_b3 = 0;
+			m_Master_Key_b4 = 0;
+			m_Master_Key_rng = 0;
+			Print("Data Corrupted Reseting Key back to 0 " + GetPosition());
 			return false;
 		}
 		if (!ctx.Read( m_Master_Key_rng )) {
+			m_IsMasterKey = false;
+			m_Master_Key_b1 = 0;
+			m_Master_Key_b2 = 0;
+			m_Master_Key_b3 = 0;
+			m_Master_Key_b4 = 0;
+			m_Master_Key_rng = 0;
+			Print("Data Corrupted Reseting Key back to 0 " + GetPosition());
 			return false;
 		}
 		return true;
@@ -104,7 +183,7 @@ class CarKey extends ItemBase {
 	
 	override void AfterStoreLoad()
 	{	
-		super.AfterStoreLoad();
+		super.AfterStoreLoad();		
 		SetSynchDirty();
 	}
 	

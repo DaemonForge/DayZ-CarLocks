@@ -17,15 +17,15 @@ class ActionInstallCarLock extends ActionContinuousBase {
 	}
 	
 	
-	override string GetText() //text game displays in HUD hint 
+	override string GetText()
 	{
-		return "Install Car Lock on " + DoorDisplayName;
+		return "Install Lock on " + DoorDisplayName;
 	}
 	
 	
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
-		
+		if (!target) return false;
 		CarDoor carDoor;
 		CarLockKit keyKit;
 		if ( Class.CastTo(carDoor, target.GetObject()) && Class.CastTo(keyKit,item)){

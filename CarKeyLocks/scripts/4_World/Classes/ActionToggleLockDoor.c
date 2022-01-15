@@ -1,4 +1,4 @@
-class ActionToggleLockCar: ActionContinuousBase
+class ActionToggleLockCar extends ActionContinuousBase
 {	
 	bool IsUnlocking = false;
 	void ActionToggleLockCar()
@@ -26,11 +26,14 @@ class ActionToggleLockCar: ActionContinuousBase
 
 	override bool ActionCondition( PlayerBase player, ActionTarget target, ItemBase item )
 	{
+		if (!target) return false;
 		CarDoor carDoor;
 		CarKey key;
-		if ( Class.CastTo(carDoor, target.GetObject()) && Class.CastTo(key,item) && !carDoor.IsRuined() && carDoor.IsAttachedToCar() && carDoor.IsKeyValid(key) ){
-			IsUnlocking = carDoor.IsDoorLocked();
-			return true;
+		if ( Class.CastTo(carDoor, target.GetObject()) && Class.CastTo(key,item) ){
+			if (!carDoor.IsRuined() && carDoor.IsAttachedToCar() && carDoor.HasKeyAssigned() && carDoor.IsKeyValid(key) ){
+				IsUnlocking = carDoor.IsDoorLocked();
+				return true;
+			} 
 		}
         return false;
 	}
