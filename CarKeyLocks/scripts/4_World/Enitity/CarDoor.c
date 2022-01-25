@@ -181,24 +181,8 @@ modded class CarDoor extends InventoryItemSuper
 	override void AfterStoreLoad()
 	{	
 		super.AfterStoreLoad();
-		int count = 0;
-		if (m_Key_b1 == 0 || m_Key_b1 == 12 || m_Key_b1 == -1 || m_Key_b1 == -1082130432|| m_Key_b1 == 2) count++;
-		if (m_Key_b2 == 0 || m_Key_b2 ==  1065353216 || m_Key_b2 == -1 || m_Key_b2 == -1082130432 || m_Key_b2 == 2) count++;
-		if (m_Key_b3 == 0 || m_Key_b3 ==  1065353216 || m_Key_b3 == -1 || m_Key_b3 == -1082130432 || m_Key_b3 == 2) count++;
-		if (m_Key_b4 == 0 || m_Key_b4 ==  1065353216 || m_Key_b4 == -1 || m_Key_b4 == -1082130432 || m_Key_b4 == 2) count++;
-		if (m_Key_rng == 0 || m_Key_rng ==  1065353216 || m_Key_rng == -1 || m_Key_rng == 2) count++;
 		
 		if (!HasKeyAssigned() && m_CarDoorIsLocked){
-			m_CarDoorIsLocked = false;
-		}
-		
-		if (count > 2 && !HasKeyAssigned()){
-			Print("Data Corrupted Reseting Door back "  + m_Key_b1 + " " + m_Key_b2 + " " + m_Key_b3 + " " + m_Key_b4 + " " + m_Key_rng + " @ " + GetPosition());
-			m_Key_b1 = 0;
-			m_Key_b2 = 0;
-			m_Key_b3 = 0;
-			m_Key_b4 = 0;
-			m_Key_rng = 0;
 			m_CarDoorIsLocked = false;
 		}
 		SetSynchDirty();
