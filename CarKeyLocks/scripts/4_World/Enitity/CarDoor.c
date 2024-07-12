@@ -199,19 +199,19 @@ modded class CarDoor extends InventoryItemSuper
 	{		
 		super.EEHitBy(damageResult, damageType, source, component, dmgZone, ammo, modelPos, speedCoef);
 		if (!GetGame().IsClient()){
+			if (GetHealth("","Health") <= 5) return;
 			array<string> FullZonesList = new array<string>;
 			GetDamageZones(FullZonesList);
 			for (int i = 0; i < FullZonesList.Count(); i++){
 				float zoneDmg = damageResult.GetDamage(FullZonesList.Get(i), "Health");
 				string zoneName = FullZonesList.Get(i);
-				if (zoneDmg > 0){
-					AddHealth(zoneName, "Health", (zoneDmg * 0.3));
+				if (zoneDmg > 0 && zoneName != "Window"){
+					AddHealth(zoneName, "Health", (zoneDmg * 0.97));
 				}
 			}
 			float dmg = damageResult.GetDamage("","Health");
-			AddHealth("", "Health", (dmg * 0.3));
+			AddHealth("", "Health", (dmg * 0.95));
 		}
-		
 	}
 	
 	override void OnUApiSave(UApiEntityStore data) {
@@ -227,7 +227,6 @@ modded class CarDoor extends InventoryItemSuper
 	
 	override void OnUApiLoad(UApiEntityStore data){
 		super.OnUApiLoad(data);
-		
 		data.Read("m_CarDoorIsLocked", m_CarDoorIsLocked);
 		data.Read("m_Key_b1", m_Key_b1);
 		data.Read("m_Key_b2", m_Key_b2);

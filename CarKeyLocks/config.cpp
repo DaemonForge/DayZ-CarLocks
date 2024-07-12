@@ -107,7 +107,7 @@ class CfgVehicles
 		attachments[]={"Att_CarKeyMaster","Att_CarKey"};
 		weight = 30000;
 	};
-	class CarDoor;
+	/*class CarDoor;
 	class HatchbackDoors_Driver: CarDoor
 	{
 		scope = 2;
@@ -460,7 +460,7 @@ class CfgVehicles
 				};
 			};
 		};
-	};
+	};*/
 };
 
 class CfgSlots
